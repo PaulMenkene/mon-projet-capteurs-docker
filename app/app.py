@@ -1,64 +1,37 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template
 import psycopg2
-import logging
 import os
+import logging
 
-app = Flask(__name__)
+# Initialisation de Flask
+app = Flask(_name_)
 
-# Configuration du logging
+# Configuration du logging pour Railway
 logging.basicConfig(level=logging.DEBUG)
 
-# Fonction de connexion à la base de données
-import os
-import psycopg2
-
-def get_db_connection():
-    conn = psycopg2.connect(
-        host=os.environ.get("PGHOST"),
-        database=os.environ.get("PGDATABASE"),
-        user=os.environ.get("PGUSER"),
-        password=os.environ.get("PGPASSWORD"),
-        port=os.environ.get("PGPORT")
-    )
-    return conn
-
-@app.route('/')
+# Route principale
+@app.route("/")
 def index():
     try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM capteurs")
-        capteurs = cur.fetchall()
-        conn.close()
-        return render_template('index.html', capteurs=capteurs)
-    except Exception as e:
-        app.logger.error(f"Erreur dans / : {e}")
-        return "Erreur interne du serveur", 500
+        # Connexion à PostgreSQL via les variables Railway
+        connection = psycopg2.connect(
+            host=os.getenv("PGHOST"),
+            port=os.getenv("PGPORT"),
+            user=os.getenv("PGUSER"),
+            password=os.getenv("PGPASSWORD"),
+            database=os.getenv("PGDATABASE")
+        )
+        cursor = connection.cursor()
+        cursor.execute("SELECT version();")
+        db_version = cursor.fetchone()[0]
+        cursor.close()
+        connection.close()
+        return f"Connexion réussie à PostgreSQL !<br>Version : {db_version}"
 
-@app.route('/capteur/<int:id>')
-def detail_capteur(id):
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM capteurs WHERE id = %s", (id,))
-        capteur = cur.fetchone()
-        conn.close()
-        if capteur:
-            return render_template('capteur.html', capteur=capteur)
-        else:
-            return "Capteur introuvable", 404
     except Exception as e:
-        app.logger.error(f"Erreur dans /capteur/{id} : {e}")
-        return "Erreur interne du serveur", 500
+        app.logger.error(f"Erreur : {e}")
+        return "Erreur lors de la connexion à PostgreSQL", 500
 
-@app.route('/healthcheck')
-def healthcheck():
-    try:
-        return {'status': 'ok'}, 200
-    except Exception as e:
-        app.logger.error(f"Erreur dans /healthcheck : {e}")
-        return {'status': 'error'}, 500
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+# Lancement de l'app (ne pas mettre en production avec debug=True)
+if _name_ == "_main_":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
