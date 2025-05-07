@@ -59,5 +59,5 @@ def healthcheck():
         app.logger.error(f"Erreur dans /healthcheck : {e}")
         return {'status': 'error'}, 500
 
-if __name_ == '__main__':
+if __name__ == '__main__':
     app.run(debug=False, host='0.0.0.0')
