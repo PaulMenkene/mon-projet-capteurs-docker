@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import psycopg2
 import logging
+import os
 
 app = Flask(__name__)
 
@@ -8,13 +9,18 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 # Fonction de connexion à la base de données
+import os
+import psycopg2
+
 def get_db_connection():
-    return psycopg2.connect(
-        host='db',  # ou 'localhost' si pas dans Docker
-        database='postgres',
-        user='postgres',
-        password='postgres'
+    conn = psycopg2.connect(
+        host=os.environ.get("PGHOST"),
+        database=os.environ.get("PGDATABASE"),
+        user=os.environ.get("PGUSER"),
+        password=os.environ.get("PGPASSWORD"),
+        port=os.environ.get("PGPORT")
     )
+    return conn
 
 @app.route('/')
 def index():
