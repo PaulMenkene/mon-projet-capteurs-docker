@@ -4,7 +4,7 @@ import os
 import logging
 
 # Initialisation de Flask
-app = Flask(_name_)
+app = Flask(__name__)
 
 # Configuration du logging pour Railway
 logging.basicConfig(level=logging.DEBUG)
@@ -33,5 +33,5 @@ def index():
         return "Erreur lors de la connexion à PostgreSQL", 500
 
 # Lancement de l'app (ne pas mettre en production avec debug=True)
-if _name_ == "_main_":
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
