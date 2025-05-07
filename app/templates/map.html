@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Carte des capteurs</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            height: 100vh;
+            width: 100vw;
+        }
+        .info.legend {
+            background: white;
+            padding: 6px 12px;
+            line-height: 1.5em;
+            font-size: 14px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([46.5, 2.5], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        const icons = {
+            temperature: L.icon({ iconUrl: '/static/temp.png', iconSize: [32, 32], iconAnchor: [16, 32] }),
+            default: L.icon({ iconUrl: '/static/thermometer.png', iconSize: [32, 32], iconAnchor: [16, 32] })
+        };
+
+        {% for c in capteurs %}
+        L.marker([{{ c[3] }}, {{ c[4] }}], {
+            icon: icons.temperature
+        }).addTo(map).bindPopup("<b>{{ c[1] }}</b><br>Valeur : {{ c[2] }}<br><a href='/capteur/{{ c[0] }}'>Détail</a>");
+        {% endfor %}
+
+        // Ajout du fichier GeoJSON
+        fetch("/static/zones.geojson")
+            .then(response => response.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: feature => ({
+                        color: feature.properties.niveau === "élevé" ? "red" : "orange",
+                        weight: 2,
+                        fillOpacity: 0.2
+                    }),
+                    onEachFeature: (feature, layer) => {
+                        if (feature.properties && feature.properties.name) {
+                            layer.bindPopup("Zone : " + feature.properties.name + "<br>Niveau : " + feature.properties.niveau);
+                        }
+                    }
+                }).addTo(map);
+            });
+
+        // Légende
+        const legend = L.control({ position: "bottomright" });
+        legend.onAdd = function () {
+            const div = L.DomUtil.create("div", "info legend");
+            div.innerHTML += "<strong>Légende</strong><br>";
+            div.innerHTML += '<i style="background: red; width: 12px; height: 12px; display: inline-block;"></i> Niveau élevé<br>';
+            div.innerHTML += '<i style="background: orange; width: 12px; height: 12px; display: inline-block;"></i> Niveau moyen<br>';
+            return div;
+        };
+        legend.addTo(map);
+    </script>
+</body>
+</html>

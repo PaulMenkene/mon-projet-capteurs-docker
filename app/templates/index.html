@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Capteurs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 2em;
+            background-color: #f4f6f8;
+        }
+
+        h1 {
+            color: #2c3e50;
+        }
+
+        form {
+            margin-bottom: 1em;
+            padding: 1em;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            padding: 0.6em;
+            margin-right: 1em;
+            margin-bottom: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 180px;
+        }
+
+        button {
+            padding: 0.6em 1.2em;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .success-message {
+            color: green;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .map-link {
+            margin-bottom: 2em;
+        }
+
+        .map-link a {
+            text-decoration: none;
+            padding: 0.5em 1em;
+            background-color: #2ecc71;
+            color: white;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 1em;
+        }
+
+        .map-link a:hover {
+            background-color: #27ae60;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Capteurs enregistrés</h1>
+
+    <form method="POST" onsubmit="return afficherMessage()">
+        <input type="text" name="nom" placeholder="Nom du capteur" required>
+        <input type="number" step="any" name="valeur" placeholder="Valeur" required>
+        <input type="number" step="any" name="latitude" placeholder="Latitude" required>
+        <input type="number" step="any" name="longitude" placeholder="Longitude" required>
+        <button type="submit">Ajouter</button>
+        <p id="confirmation" class="success-message" style="display:none;">Capteur ajouté avec succès !</p>
+    </form>
+
+    <div class="map-link">
+        <a href="/map">Voir sur carte</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Valeur</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Action</th> <!-- colonne en plus -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in capteurs %}
+            <tr>
+                <td>{{ c[0] }}</td>
+                <td>{{ c[1] }}</td>
+                <td>{{ c[2] }}</td>
+                <td>{{ c[3] }}</td>
+                <td>{{ c[4] }}</td>
+                <td><a href="/capteur/{{ c[0] }}">Voir</a></td> <!-- bouton "Voir" -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function afficherMessage() {
+            const message = document.getElementById("confirmation");
+            message.style.display = "block";
+            setTimeout(() => {
+                message.style.display = "none";
+            }, 3000);
+            return true;
+        }
+    </script>
+
+</body>
+</html>

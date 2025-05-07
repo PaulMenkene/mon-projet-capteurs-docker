@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Détails du capteur</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .info {
+            margin-bottom: 20px;
+            background: white;
+            padding: 1em;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        #map {
+            height: 300px;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Détail du capteur</h1>
+    <div class="info">
+        <p><strong>Nom :</strong> {{ capteur[1] }}</p>
+        <p><strong>Valeur :</strong> {{ capteur[2] }}</p>
+        <p><strong>Latitude :</strong> {{ capteur[3] }}</p>
+        <p><strong>Longitude :</strong> {{ capteur[4] }}</p>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        const lat = {{ capteur[3] }};
+        const lon = {{ capteur[4] }};
+        const map = L.map('map').setView([lat, lon], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        const marker = L.marker([lat, lon]).addTo(map)
+            .bindPopup("{{ capteur[1] }}<br>Valeur : {{ capteur[2] }}").openPopup();
+    </script>
+</body>
+</html>
